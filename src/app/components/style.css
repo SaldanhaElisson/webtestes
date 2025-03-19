@@ -1,0 +1,35 @@
+.jspsych-content{
+    font-size: 20px;
+    text-align: center;
+   
+    margin-top: 50;
+    margin-bottom: 10px;
+    font-family: Arial, sans-serif;
+   
+}
+
+#jspsych-html-button-response-stimulus {
+    margin-top: 7rem;
+}
+
+#jspsych-html-button-response-btngroup {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.jspsych-btn{
+    height: 2rem;
+    background-color: cadetblue;
+    border-radius: 5px;
+    padding: 10px;
+    border: none;
+}
+
+#webgazerVideoContainer {
+    display: block;
+    position: relative;
+
+    margin-top: 50px;
+}
