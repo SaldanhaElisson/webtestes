@@ -24,71 +24,76 @@ const Experiment = () => {
       type: jsPsychHtmlButtonResponse,
       stimulus: function () {
         // Salva os dados localmente
-        jsPsych.data.get().localSave('csv', 'mydata.csv');
+        jsPsych.data.get().localSave('csv', 'eye-tracking-data.csv');
 
         // Obtém todos os dados coletados
         const trial_data = jsPsych.data.get().values();
 
-        // Agrupa os dados por vídeo
-        const data_by_video: { [key: string]: any[] } = {};
+        // Agrupa os dados por mídia (imagem/vídeo)
+        const data_by_media: { [key: string]: any[] } = {};
         trial_data.forEach((trial) => {
-          if (trial.video_path) {
-            if (!data_by_video[trial.video_path]) {
-              data_by_video[trial.video_path] = [];
+          const media_path = trial.path
+          if (media_path) {
+            if (!data_by_media[media_path]) {
+              data_by_media[media_path] = [];
             }
-            data_by_video[trial.video_path].push(trial);
+            data_by_media[media_path].push(trial);
           }
         });
 
-        // Mapeia cada vídeo para uma cor específica
-        const video_colors: { [key: string]: string } = {
-          "/video.mp4": "white",   // Pontos do vídeo 1 serão brancos
-          "/video2.mp4": "red",    // Pontos do vídeo 2 serão vermelhos
-          "/video3.mp4": "blue",   // Pontos do vídeo 3 serão azuis
-          // Adicione mais vídeos e cores conforme necessário
+        const media_colors: { [key: string]: string } = {
+          "/image1.jpg": "rgba(255, 255, 255, 0.7)",
+          "/image2.jpg": "rgba(255, 0, 0, 0.7)",
+          "/video3.mp4": "rgba(0, 0, 255, 0.7)",
+
         };
 
-        // Cria o HTML para exibir os dois mapas de calor
+
         let html = `
           <div style="
-            position: fixed; /* Fixa a div na tela */
+            position: fixed;
             top: 0;
             left: 0;
-            width: 100vw; /* Ocupa 100% da largura da viewport */
-            height: 50vh; /* Ocupa 50% da altura da viewport */
-            background: rgba(0, 0, 0, 0.8); /* Fundo escuro semi-transparente */
-            z-index: 1000; /* Garante que a div fique sobreposta a todo o conteúdo */
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.9);
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-direction: column;
           ">
+            <h2 style="color: white; margin-bottom: 20px;">Visualização dos Pontos de Gaze</h2>
+            
             <div style="
               position: relative;
-              width: 90vw; /* 90% da largura da viewport */
-              height: 90%; /* 90% da altura da div pai */
+              width: 100vw;
+              height: 100vh;
               border: 3px solid white;
-              overflow: hidden; /* Garante que os pontos não ultrapassem o contêiner */
+              overflow: hidden;
+              background: rgba(0, 0, 0, 0.7);
             ">
         `;
 
-
-        Object.entries(data_by_video).forEach(([video_path, trials]) => {
-          const color = video_colors[video_path] || "gray"; // Usa "gray" como cor padrão se o vídeo não estiver no mapeamento
+        // Adiciona os pontos de gaze
+        Object.entries(data_by_media).forEach(([media_path, trials]) => {
+          const color = media_colors[media_path] || "rgba(128, 128, 128, 0.7)";
           trials.forEach((trial) => {
             if (trial.webgazer_data) {
               trial.webgazer_data.forEach((gaze: { x: number; y: number }) => {
-                // Coordenadas originais (não invertidas)
-                const x = (gaze.x / window.innerWidth) * 100; // Converte para porcentagem da largura da tela
-                const y = (gaze.y / window.innerHeight) * 100; // Converte para porcentagem da altura da tela
+                const x = (gaze.x / window.innerWidth) * 100;
+                const y = (gaze.y / window.innerHeight) * 100;
+
                 html += `
                   <div style="
                     position: absolute;
                     left: ${x}%;
                     top: ${y}%;
-                    width: 5px;
-                    height: 5px;
+                    width: 8px;
+                    height: 8px;
                     background-color: ${color};
-                    transform: translate(-50%, -50%); /* Centraliza o ponto nas coordenadas */
+                    border-radius: 50%;
+                    transform: translate(-50%, -50%);
+                    pointer-events: none;
                   "></div>
                 `;
               });
@@ -98,63 +103,33 @@ const Experiment = () => {
 
         html += `
             </div>
-          </div>
-    
-          <div style="
-            position: fixed; /* Fixa a div na tela */
-            bottom: 0;
-            left: 0;
-            width: 100vw; /* Ocupa 100% da largura da viewport */
-            height: 50vh; /* Ocupa 50% da altura da viewport */
-            background: rgba(0, 0, 0, 0.8); /* Fundo escuro semi-transparente */
-            z-index: 1000; /* Garante que a div fique sobreposta a todo o conteúdo */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-          ">
+            
             <div style="
-              position: relative;
-              width: 90vw; /* 90% da largura da viewport */
-              height: 90%; /* 90% da altura da div pai */
-              border: 3px solid white;
-              overflow: hidden; /* Garante que os pontos não ultrapassem o contêiner */
+              margin-top: 20px;
+              color: white;
+              text-align: center;
             ">
-        `;
-
-
-        Object.entries(data_by_video).forEach(([video_path, trials]) => {
-          const color = video_colors[video_path] || "gray"; // Usa "gray" como cor padrão se o vídeo não estiver no mapeamento
-          trials.forEach((trial) => {
-            if (trial.webgazer_data) {
-              trial.webgazer_data.forEach((gaze: { x: number; y: number }) => {
-                // Coordenadas invertidas (eixo Y invertido)
-                const x = (gaze.x / window.innerWidth) * 100; // Converte para porcentagem da largura da tela
-                const y_corrected = window.innerHeight - gaze.y; // Inverte o eixo Y
-                const y = (y_corrected / window.innerHeight) * 100; // Converte para porcentagem da altura da tela
-                html += `
-                  <div style="
-                    position: absolute;
-                    left: ${x}%;
-                    top: ${y}%;
-                    width: 5px;
-                    height: 5px;
-                    background-color: ${color};
-                    transform: translate(-50%, -50%); /* Centraliza o ponto nas coordenadas */
-                  "></div>
-                `;
-              });
-            }
-          });
-        });
-
-        html += `
+              <p>Os dados foram salvos como "eye-tracking-data.csv"</p>
+              ${Object.entries(media_colors).map(([media, color]) => `
+                <div style="display: inline-block; margin: 0 15px;">
+                  <span style="
+                    display: inline-block;
+                    width: 12px;
+                    height: 12px;
+                    background: ${color};
+                    border-radius: 50%;
+                    margin-right: 5px;
+                  "></span>
+                  ${media.split('/').pop()}
+                </div>
+              `).join('')}
             </div>
           </div>
         `;
 
         return html;
       },
-      choices: [], // Sem botões de escolha
+      choices: [],
     };
 
     const preload = {
@@ -204,6 +179,7 @@ const Experiment = () => {
       ],
       calibration_mode: "click",
       point_color: "blue",
+      point_size: 30,
       repetitions_per_point: 3,
       randomize_calibration_order: true,
 
@@ -265,10 +241,10 @@ const Experiment = () => {
 
     const begin = {
       type: jsPsychHtmlButtonResponse,
-      stimulus: `<p>A proxíma etapa consiste em localizar o caminho dos objetos maiores em vídeos.</p>
-        <p>Como desafio olhe a trajetório dos maiores objetos nos vídeos3</p>
-        <p>Para ir par o proxímo vídeo pressione espaço.</p>
-        <p>Pressione qualquer tecla para iniciar, se precisar tirar um descanso.</p>
+      stimulus: `<p>A proxíma etapa consiste em localizar os objetos</p>
+        <p>Como desafio encare os objetos por alguns segundos</p>
+        <p>Para ir a proxíma imagem pressione espaço.</p>
+        <p>Click em continuar, se precisar tirar um descanso.</p>
       `,
       choices: ["Continuar"],
     }
@@ -282,9 +258,9 @@ const Experiment = () => {
       calibration,
       validation_instructions,
       validation,
-      recalibrate, // Etapa de recalibração (condicional)
+      recalibrate,
       begin,
-      gerenateTrial(["/video.mp4", "/video2.mp4", "/video3.mp4"], "video"),
+      gerenateTrial(["/image1.jpg", "/image2.jpg",], "img"),
       show_data,
     ]);
   }, []);

@@ -33,3 +33,7 @@
 
     margin-top: 50px;
 }
+
+#calibration-point{
+    background-color: red !important;
+}
