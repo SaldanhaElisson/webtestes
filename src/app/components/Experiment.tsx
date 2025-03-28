@@ -23,13 +23,10 @@ const Experiment = () => {
     const show_data = {
       type: jsPsychHtmlButtonResponse,
       stimulus: function () {
-        // Salva os dados localmente
         jsPsych.data.get().localSave('csv', 'eye-tracking-data.csv');
 
-        // Obtém todos os dados coletados
         const trial_data = jsPsych.data.get().values();
 
-        // Agrupa os dados por mídia (imagem/vídeo)
         const data_by_media: { [key: string]: any[] } = {};
         trial_data.forEach((trial) => {
           const media_path = trial.path
@@ -44,7 +41,7 @@ const Experiment = () => {
         const media_colors: { [key: string]: string } = {
           "/image1.jpg": "rgba(255, 255, 255, 0.7)",
           "/image2.jpg": "rgba(255, 0, 0, 0.7)",
-          "/video3.mp4": "rgba(0, 0, 255, 0.7)",
+          "/image3.jpg": "rgba(0, 0, 255, 0.7)",
 
         };
 
@@ -74,7 +71,6 @@ const Experiment = () => {
             ">
         `;
 
-        // Adiciona os pontos de gaze
         Object.entries(data_by_media).forEach(([media_path, trials]) => {
           const color = media_colors[media_path] || "rgba(128, 128, 128, 0.7)";
           trials.forEach((trial) => {
@@ -102,27 +98,6 @@ const Experiment = () => {
         });
 
         html += `
-            </div>
-            
-            <div style="
-              margin-top: 20px;
-              color: white;
-              text-align: center;
-            ">
-              <p>Os dados foram salvos como "eye-tracking-data.csv"</p>
-              ${Object.entries(media_colors).map(([media, color]) => `
-                <div style="display: inline-block; margin: 0 15px;">
-                  <span style="
-                    display: inline-block;
-                    width: 12px;
-                    height: 12px;
-                    background: ${color};
-                    border-radius: 50%;
-                    margin-right: 5px;
-                  "></span>
-                  ${media.split('/').pop()}
-                </div>
-              `).join('')}
             </div>
           </div>
         `;
@@ -205,11 +180,12 @@ const Experiment = () => {
         [25, 75],
         [75, 75],
       ],
-      roi_radius: 200,
+      roi_radius: 100,
       target_color: "green",
       time_to_saccade: 1000,
       randomize_validation_order: true,
-      validation_duration: 2000,
+      validation_duration: 3000,
+      point_size: 30,
       data: {
         task: "validate",
       },
@@ -260,7 +236,7 @@ const Experiment = () => {
       validation,
       recalibrate,
       begin,
-      gerenateTrial(["/image1.jpg", "/image2.jpg",], "img"),
+      gerenateTrial(["/image1.jpg", "/image2.jpg", "/image3.jpg"], "img"),
       show_data,
     ]);
   }, []);

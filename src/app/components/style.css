@@ -11,7 +11,7 @@
 #jspsych-html-button-response-stimulus {
     margin-top: 7rem;
 }
-
+    
 #jspsych-html-button-response-btngroup {
     margin-top: 2rem;
     display: flex;
@@ -35,5 +35,9 @@
 }
 
 #calibration-point{
+    background-color: red !important;
+}
+
+.validation-point{
     background-color: red !important;
 }

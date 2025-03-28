@@ -39,7 +39,8 @@ export default function generateTrial(
         type: mediaPlugin,
         stimulus: [path],
         choices: [" "],
-        stimulus_width: 700,
+        stimulus_width: 1700,
+        stimulus_height: 800,
         ...(typeFile === "video" && {
             width: 700,
             height: "auto"
